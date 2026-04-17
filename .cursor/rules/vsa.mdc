@@ -1,0 +1,10 @@
+---
+description: Enforces Vertical Slice Architecture (VSA) boundaries.
+globs: src/features/**/*
+---
+
+# Architecture Rules
+
+- DO NOT extract components, types, or utilities outside of the current feature slice unless explicitly instructed.
+- Each feature must contain its own UI, Server Actions, types, and data access logic.
+- Cross-feature communication must happen through `src/core` or `src/shared`.

@@ -1,0 +1,14 @@
+---
+description: Global project rules and tech stack definitions.
+globs: *
+---
+
+# Tech Stack
+
+- Next.js (App Router), Supabase, Vercel, TailwindCSS, GitHub Models.
+
+# Core Directives
+
+- Write concise, TypeScript-strict code.
+- Prioritize mobile-first PWA design.
+- Use Claude 3.5 Sonnet (or latest equivalent) as the baseline for reasoning.

@@ -1,0 +1,10 @@
+---
+description: Standards for database mutations and authentication.
+globs: **/*action.ts, src/core/db/**/*
+---
+
+# Supabase & Data Directives
+
+- Always use Next.js Server Actions for database mutations.
+- Use `@supabase/ssr` for all authentication and client instantiation.
+- Enforce strict TypeScript types generated from the Supabase schema.
