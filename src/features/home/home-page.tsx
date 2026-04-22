@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export function HomePage() {
+export function HomePage({ isSignedIn }: { isSignedIn: boolean }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6 py-16">
       <div className="mx-auto flex w-full max-w-md flex-col gap-6 text-center">
@@ -15,12 +15,21 @@ export function HomePage() {
           a mobile-first PWA.
         </p>
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Link
-            href="/login"
-            className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-6 text-sm font-medium text-background transition-colors hover:bg-zinc-800 dark:hover:bg-zinc-200"
-          >
-            Sign in with Google
-          </Link>
+          {isSignedIn ? (
+            <Link
+              href="/dashboard"
+              className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-6 text-sm font-medium text-background transition-colors hover:bg-zinc-800 dark:hover:bg-zinc-200"
+            >
+              Go to dashboard
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-6 text-sm font-medium text-background transition-colors hover:bg-zinc-800 dark:hover:bg-zinc-200"
+            >
+              Sign in with Google
+            </Link>
+          )}
         </div>
       </div>
     </div>

@@ -5,10 +5,23 @@ import { useMemo, useState } from "react";
 
 import { createSupabaseBrowserClient } from "@/core/supabase/client";
 
-export function LoginPage() {
+function safeNextParam(next: string | undefined): string | undefined {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) {
+    return undefined;
+  }
+  return next;
+}
+
+export function LoginPage({
+  oauthNext,
+  serverError,
+}: {
+  oauthNext?: string;
+  serverError?: string;
+}) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(serverError ?? null);
 
   async function signInWithGoogle() {
     if (!supabase) {
@@ -20,10 +33,15 @@ export function LoginPage() {
 
     setMessage(null);
     setLoading(true);
+    const next = safeNextParam(oauthNext);
+    const callback = new URL(`${window.location.origin}/auth/callback`);
+    if (next) {
+      callback.searchParams.set("next", next);
+    }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: callback.toString(),
       },
     });
     setLoading(false);
