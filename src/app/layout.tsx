@@ -1,33 +1,40 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+
+import { getLocale } from "@/core/i18n/locale";
+import { getMessages } from "@/core/i18n/messages";
 import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Expense tracker",
-    template: "%s · Expense tracker",
-  },
-  description: "Receipt scanning, categorization, and spending insights.",
-  applicationName: "Expense tracker",
-  appleWebApp: {
-    capable: true,
-    title: "Expense tracker",
-    statusBarStyle: "default",
-  },
-  formatDetection: {
-    telephone: false,
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const d = getMessages(locale);
+  return {
+    title: {
+      default: d.meta.titleDefault,
+      template: `%s · ${d.meta.titleSuffix}`,
+    },
+    description: d.meta.description,
+    applicationName: d.meta.titleDefault,
+    appleWebApp: {
+      capable: true,
+      title: d.meta.titleDefault,
+      statusBarStyle: "default",
+    },
+    formatDetection: {
+      telephone: false,
+    },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: [
@@ -38,14 +45,17 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const htmlLang = locale === "uk" ? "uk" : "en";
+
   return (
     <html
-      lang="en"
+      lang={htmlLang}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>

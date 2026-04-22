@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 
 import type { Json } from "@/database.types";
+import { getLocale } from "@/core/i18n/locale";
+import { getMessages } from "@/core/i18n/messages";
 import { createSupabaseServerClient } from "@/core/supabase/server";
 import {
   extractionPurchasedAtIso,
@@ -20,30 +22,33 @@ const allowedMime = new Set([
 const maxBytes = 10 * 1024 * 1024;
 
 export async function uploadReceiptAction(formData: FormData) {
+  const locale = await getLocale();
+  const a = getMessages(locale).actions;
+
   const supabase = await createSupabaseServerClient();
   if (!supabase) {
-    throw new Error("Supabase is not configured.");
+    throw new Error(a.supabaseNotConfigured);
   }
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    throw new Error("You must be signed in.");
+    throw new Error(a.mustBeSignedIn);
   }
 
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) {
-    throw new Error("Choose an image file to upload.");
+    throw new Error(a.chooseImage);
   }
 
   if (file.size > maxBytes) {
-    throw new Error("Image must be 10MB or smaller.");
+    throw new Error(a.fileTooLarge);
   }
 
   const mime = file.type || "image/jpeg";
   if (!allowedMime.has(mime)) {
-    throw new Error("Use a JPEG, PNG, WebP, or HEIC image.");
+    throw new Error(a.invalidMime);
   }
 
   const extFromName = file.name.includes(".")
@@ -79,7 +84,7 @@ export async function uploadReceiptAction(formData: FormData) {
 
   if (insertError || !row) {
     await supabase.storage.from("receipts").remove([path]);
-    throw new Error(insertError?.message ?? "Could not save receipt.");
+    throw new Error(insertError?.message ?? a.couldNotSaveReceipt);
   }
 
   revalidatePath("/receipts");
@@ -87,16 +92,19 @@ export async function uploadReceiptAction(formData: FormData) {
 }
 
 export async function processReceiptAction(receiptId: string) {
+  const locale = await getLocale();
+  const a = getMessages(locale).actions;
+
   const supabase = await createSupabaseServerClient();
   if (!supabase) {
-    throw new Error("Supabase is not configured.");
+    throw new Error(a.supabaseNotConfigured);
   }
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    throw new Error("You must be signed in.");
+    throw new Error(a.mustBeSignedIn);
   }
 
   const { data: receipt, error: fetchError } = await supabase
@@ -106,11 +114,11 @@ export async function processReceiptAction(receiptId: string) {
     .single();
 
   if (fetchError || !receipt || receipt.user_id !== user.id) {
-    throw new Error("Receipt not found.");
+    throw new Error(a.receiptNotFound);
   }
 
   if (receipt.status !== "pending" && receipt.status !== "failed") {
-    throw new Error("This receipt is not waiting for extraction.");
+    throw new Error(a.receiptNotPending);
   }
 
   await supabase
@@ -126,7 +134,7 @@ export async function processReceiptAction(receiptId: string) {
       .download(receipt.storage_path);
 
     if (dlError || !blob) {
-      throw new Error(dlError?.message ?? "Could not read the image.");
+      throw new Error(dlError?.message ?? a.couldNotReadImage);
     }
 
     const bytes = Buffer.from(await blob.arrayBuffer());
@@ -192,7 +200,7 @@ export async function processReceiptAction(receiptId: string) {
       throw new Error(upError.message);
     }
   } catch (e) {
-    const message = e instanceof Error ? e.message : "Extraction failed.";
+    const message = e instanceof Error ? e.message : a.extractionFailed;
     await supabase
       .from("receipts")
       .update({

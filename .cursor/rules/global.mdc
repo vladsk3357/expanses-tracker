@@ -12,3 +12,12 @@ globs: *
 - Write concise, TypeScript-strict code.
 - Prioritize mobile-first PWA design.
 - Use Claude 3.5 Sonnet (or latest equivalent) as the baseline for reasoning.
+
+# Internationalization (en / uk)
+
+- Supported locales: `en` (default) and `uk` (Ukrainian). Preference is stored in the **`app-locale`** cookie (see `LOCALE_COOKIE` in `src/core/i18n/config.ts`).
+- **Server:** `getLocale()` and `getDictionary()` in `src/core/i18n/locale.ts` and `dictionary.ts` (React `cache`, one read per request). Message tables live in `src/core/i18n/messages.ts` — **add or change copy in both English and Ukrainian** so shapes stay in sync.
+- **Changing language:** `setAppLocale` server action in `src/core/i18n/actions.ts`; UI control is `src/features/i18n/language-switcher.tsx` (cookie + `router.refresh()`).
+- **New UI text:** extend the `Dictionary` tree in `messages.ts`, pass strings from Server Components via props into Client Components where needed (do not hardcode user-visible English/Ukrainian in feature UI without going through messages).
+- **User-facing errors from server actions:** resolve `getMessages(await getLocale()).actions` (see `src/features/receipts/receipts-actions.ts`) so thrown messages match the active locale.
+- **HTML / SEO / PWA:** root `layout.tsx` uses `generateMetadata()` and `<html lang>` from `getLocale()`; `manifest.ts` is async and localized. Date/number formatting uses `intlLocaleTag()` from `src/core/i18n/config.ts` where locale-aware output matters.

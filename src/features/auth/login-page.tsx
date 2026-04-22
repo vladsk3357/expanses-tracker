@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { createSupabaseBrowserClient } from "@/core/supabase/client";
+import type { AppLocale } from "@/core/i18n/config";
+import type { Dictionary } from "@/core/i18n/messages";
+import { LanguageSwitcher } from "@/features/i18n/language-switcher";
 
 function safeNextParam(next: string | undefined): string | undefined {
   if (!next || !next.startsWith("/") || next.startsWith("//")) {
@@ -13,21 +16,24 @@ function safeNextParam(next: string | undefined): string | undefined {
 }
 
 export function LoginPage({
+  dict,
+  locale,
   oauthNext,
   serverError,
 }: {
+  dict: Dictionary;
+  locale: AppLocale;
   oauthNext?: string;
   serverError?: string;
 }) {
+  const { login, language } = dict;
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(serverError ?? null);
 
   async function signInWithGoogle() {
     if (!supabase) {
-      setMessage(
-        "Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local, then restart the dev server.",
-      );
+      setMessage(login.envHint);
       return;
     }
 
@@ -54,10 +60,9 @@ export function LoginPage({
     <div className="flex flex-1 flex-col items-center justify-center px-6 py-16">
       <div className="mx-auto flex w-full max-w-sm flex-col gap-6">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{login.title}</h1>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Use Google after enabling the provider and redirect URLs in the
-            Supabase dashboard (local: http://localhost:3000/auth/callback).
+            {login.hint}
           </p>
         </div>
         <button
@@ -66,7 +71,7 @@ export function LoginPage({
           disabled={loading}
           className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-6 text-sm font-medium text-background transition-colors hover:bg-zinc-800 disabled:opacity-60 dark:hover:bg-zinc-200"
         >
-          {loading ? "Redirecting…" : "Continue with Google"}
+          {loading ? login.redirecting : login.continue}
         </button>
         {message ? (
           <p className="text-center text-sm text-red-600 dark:text-red-400">
@@ -75,9 +80,12 @@ export function LoginPage({
         ) : null}
         <p className="text-center text-sm">
           <Link href="/" className="font-medium text-foreground underline">
-            Back home
+            {login.backHome}
           </Link>
         </p>
+        <div className="flex justify-center">
+          <LanguageSwitcher locale={locale} labels={language} />
+        </div>
       </div>
     </div>
   );

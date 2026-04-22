@@ -1,10 +1,16 @@
 import type { MetadataRoute } from "next";
 
-export default function manifest(): MetadataRoute.Manifest {
+import { getLocale } from "@/core/i18n/locale";
+import { getMessages } from "@/core/i18n/messages";
+
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const locale = await getLocale();
+  const d = getMessages(locale);
+
   return {
-    name: "Expense tracker",
-    short_name: "Expenses",
-    description: "Receipt scanning and spending insights.",
+    name: d.meta.manifestName,
+    short_name: d.meta.manifestShortName,
+    description: d.meta.manifestDescription,
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

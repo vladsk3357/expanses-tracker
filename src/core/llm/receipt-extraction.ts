@@ -115,7 +115,8 @@ export async function extractReceiptFromImage(options: {
     process.env.GITHUB_MODELS_MODEL?.trim() ?? "openai/gpt-4o-mini";
 
   const system = `You are a receipt OCR assistant. Read the receipt image and return ONE JSON object only (no markdown).
-Use European conventions when applicable: dates may be DD/MM/YYYY; tax labels may include VAT/IVA.
+Receipts may be in Ukrainian, English, or other languages; read Cyrillic and Latin text accurately.
+Use European conventions when applicable: dates may be DD/MM/YYYY; tax labels may include VAT/IVA/ПДВ.
 Include line_items for each product row with label, quantity, unit_price, category (guess if missing), line_total.
 Set merchant, total, currency (default EUR), purchased_at as DD/MM/YYYY string if visible, and tax_hints as an array of short plain-text strings (not objects) for notable tax lines.
 If text is unreadable, return line_items as [] and total null.`;

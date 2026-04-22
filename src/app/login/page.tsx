@@ -1,13 +1,9 @@
 import { redirect } from "next/navigation";
 
+import { getDictionary } from "@/core/i18n/dictionary";
+import { getLocale } from "@/core/i18n/locale";
 import { createSupabaseServerClient } from "@/core/supabase/server";
 import { LoginPage } from "@/features/auth/login-page";
-
-const errorMessages: Record<string, string> = {
-  missing_code: "Missing authorization code. Try signing in again.",
-  config: "Supabase is not configured on the server.",
-  oauth: "Google sign-in failed. Check Supabase and redirect URLs.",
-};
 
 export default async function Page({
   searchParams,
@@ -24,8 +20,21 @@ export default async function Page({
     }
   }
 
+  const [dict, locale] = await Promise.all([getDictionary(), getLocale()]);
   const { next, error } = await searchParams;
+  const errorMessages: Record<string, string> = {
+    missing_code: dict.loginErrors.missing_code,
+    config: dict.loginErrors.config,
+    oauth: dict.loginErrors.oauth,
+  };
   const serverError = error ? errorMessages[error] ?? error : undefined;
 
-  return <LoginPage oauthNext={next} serverError={serverError} />;
+  return (
+    <LoginPage
+      dict={dict}
+      locale={locale}
+      oauthNext={next}
+      serverError={serverError}
+    />
+  );
 }
