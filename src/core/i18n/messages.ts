@@ -79,6 +79,13 @@ const en = {
     extract: "Extract with AI",
     extracting: "Extracting…",
     extractionFailed: "Extraction failed.",
+    deleteUpload: "Remove upload",
+    deleting: "Removing…",
+    deleteFailed: "Could not remove receipt.",
+    viewPhoto: "View photo",
+    closePhoto: "Close",
+    viewPhotoTitle: "Receipt photo",
+    viewPhotoLoadError: "Could not load the photo.",
   },
   statistics: {
     title: "Statistics",
@@ -108,6 +115,8 @@ const en = {
     receiptNotPending: "This receipt is not waiting for extraction.",
     couldNotReadImage: "Could not read the image.",
     extractionFailed: "Extraction failed.",
+    receiptCannotDelete:
+      "Only uploads that are not finished can be removed.",
   },
 };
 
@@ -192,6 +201,13 @@ const uk: Dictionary = {
     extract: "Витягнути за допомогою ШІ",
     extracting: "Витяг…",
     extractionFailed: "Витяг даних не вдався.",
+    deleteUpload: "Прибрати завантаження",
+    deleting: "Видалення…",
+    deleteFailed: "Не вдалося прибрати чек.",
+    viewPhoto: "Переглянути фото",
+    closePhoto: "Закрити",
+    viewPhotoTitle: "Фото чека",
+    viewPhotoLoadError: "Не вдалося завантажити фото.",
   },
   statistics: {
     title: "Статистика",
@@ -221,6 +237,8 @@ const uk: Dictionary = {
     receiptNotPending: "Цей чек не очікує витягу даних.",
     couldNotReadImage: "Не вдалося прочитати зображення.",
     extractionFailed: "Витяг даних не вдався.",
+    receiptCannotDelete:
+      "Можна прибрати лише завантаження, які ще не оброблені повністю.",
   },
 };
 

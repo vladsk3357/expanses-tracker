@@ -7,8 +7,10 @@ import { getDictionary } from "@/core/i18n/dictionary";
 import { getLocale } from "@/core/i18n/locale";
 import type { Dictionary } from "@/core/i18n/messages";
 import { createSupabaseServerClient } from "@/core/supabase/server";
+import { ReceiptDeleteButton } from "@/features/receipts/receipt-delete-button";
 import { ReceiptProcessButton } from "@/features/receipts/receipt-process-button";
 import { ReceiptUploadForm } from "@/features/receipts/receipt-upload-form";
+import { ReceiptViewPhotoButton } from "@/features/receipts/receipt-view-photo-button";
 
 type ReceiptSummaryRow = {
   id: string;
@@ -46,6 +48,7 @@ function ReceiptCard({
 }) {
   const { receipts: r } = dict;
   const canExtract = row.status === "pending" || row.status === "failed";
+  const canRemoveUpload = canExtract;
   const totalLabel =
     row.total != null
       ? `${row.total.toFixed(2)} ${row.currency ?? ""}`.trim()
@@ -83,8 +86,14 @@ function ReceiptCard({
             </dd>
           </div>
         </dl>
-        <div className="flex justify-end border-t border-zinc-100 pt-3 dark:border-zinc-800/80">
-          <ReceiptProcessButton receiptId={row.id} disabled={!canExtract} r={r} />
+        <div className="flex flex-wrap justify-end gap-2 border-t border-zinc-100 pt-3 dark:border-zinc-800/80">
+          <ReceiptViewPhotoButton receiptId={row.id} r={r} />
+          {canRemoveUpload ? (
+            <ReceiptDeleteButton receiptId={row.id} r={r} />
+          ) : null}
+          {canExtract ? (
+            <ReceiptProcessButton receiptId={row.id} r={r} />
+          ) : null}
         </div>
       </div>
     </article>
@@ -154,6 +163,7 @@ export async function ReceiptsPage() {
                 list.map((row) => {
                   const canExtract =
                     row.status === "pending" || row.status === "failed";
+                  const canRemoveUpload = canExtract;
                   return (
                     <tr
                       key={row.id}
@@ -183,11 +193,15 @@ export async function ReceiptsPage() {
                         )}
                       </td>
                       <td className="px-3 py-2 text-right">
-                        <ReceiptProcessButton
-                          receiptId={row.id}
-                          disabled={!canExtract}
-                          r={r}
-                        />
+                        <div className="flex flex-wrap justify-end gap-2">
+                          <ReceiptViewPhotoButton receiptId={row.id} r={r} />
+                          {canRemoveUpload ? (
+                            <ReceiptDeleteButton receiptId={row.id} r={r} />
+                          ) : null}
+                          {canExtract ? (
+                            <ReceiptProcessButton receiptId={row.id} r={r} />
+                          ) : null}
+                        </div>
                       </td>
                     </tr>
                   );

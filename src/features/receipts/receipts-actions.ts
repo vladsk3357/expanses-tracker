@@ -91,6 +91,56 @@ export async function uploadReceiptAction(formData: FormData) {
   return { id: row.id };
 }
 
+export async function deleteReceiptAction(receiptId: string) {
+  const locale = await getLocale();
+  const a = getMessages(locale).actions;
+
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    throw new Error(a.supabaseNotConfigured);
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error(a.mustBeSignedIn);
+  }
+
+  const { data: receipt, error: fetchError } = await supabase
+    .from("receipts")
+    .select("id, user_id, storage_path, status")
+    .eq("id", receiptId)
+    .single();
+
+  if (fetchError || !receipt || receipt.user_id !== user.id) {
+    throw new Error(a.receiptNotFound);
+  }
+
+  if (receipt.status !== "pending" && receipt.status !== "failed") {
+    throw new Error(a.receiptCannotDelete);
+  }
+
+  const { error: storageError } = await supabase.storage
+    .from("receipts")
+    .remove([receipt.storage_path]);
+
+  if (storageError) {
+    throw new Error(storageError.message);
+  }
+
+  const { error: deleteError } = await supabase
+    .from("receipts")
+    .delete()
+    .eq("id", receipt.id);
+
+  if (deleteError) {
+    throw new Error(deleteError.message);
+  }
+
+  revalidatePath("/receipts");
+}
+
 export async function processReceiptAction(receiptId: string) {
   const locale = await getLocale();
   const a = getMessages(locale).actions;
