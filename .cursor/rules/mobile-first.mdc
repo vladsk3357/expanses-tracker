@@ -1,0 +1,30 @@
+---
+description: Mobile-first layout, Tailwind breakpoints, touch targets, and safe areas.
+globs: src/**/*.tsx,src/app/globals.css
+---
+
+# Mobile-first design
+
+## Tailwind breakpoints
+
+- **Default classes = smallest screens (phone).** Add `sm:`, `md:`, `lg:` only when layout, spacing, or density should change on larger viewports.
+- Prefer **stacked / single-column** layouts by default; introduce side-by-side or dense grids from `sm` or `md` upward.
+
+## Touch and interaction
+
+- Interactive controls (buttons, primary nav links, file upload triggers) should meet roughly **44×44 CSS pixels**: use `min-h-11`, `inline-flex items-center justify-center`, and enough horizontal padding.
+- On very narrow widths, primary actions may be **full width** (`w-full`) until a breakpoint where inline or table layouts take over.
+
+## Tables and wide content
+
+- Avoid **horizontal scrolling as the only** way to consume primary lists on mobile. Prefer a **card or stacked row** layout by default and show a `<table>` from `md:` (or similar) via `md:hidden` / `hidden md:block` (or equivalent), sharing one data source.
+- If a table must remain on small screens, wrap it in `overflow-x-auto` and keep non-table summaries visible without panning.
+
+## Safe areas and viewport
+
+- For headers or fixed UI against device edges, respect **`env(safe-area-inset-*)`** (e.g. top padding on notched phones). Coordinate with `body` horizontal insets so content is not clipped.
+- Do not set **`maximumScale: 1`** (or equivalent zoom lock) unless there is a documented product reason; allow pinch-zoom for accessibility.
+
+## Navigation
+
+- Authenticated nav: avoid cramming nav, identity, and actions into one fragile row on phones; use **stacked blocks**, **scrollable horizontal nav**, or similar patterns, then a single header row from `md:` up.
